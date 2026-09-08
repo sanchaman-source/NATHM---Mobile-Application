@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'package:natham_college/dummy_data/dummy_banner_data.dart';
+import 'package:natham_college/dummy_data/notice_list_dummy_data.dart';
 import 'package:natham_college/model/banner_model.dart';
+import 'package:natham_college/model/course_card_model.dart';
+import 'package:natham_college/model/notice_list_model.dart';
+import 'package:natham_college/screen/homepage/apply/apply_to_nathm_page.dart';
+import 'package:natham_college/screen/homepage/downloads/download_page.dart';
+import 'package:natham_college/screen/notices/notice_page.dart';
+import 'package:natham_college/screen/study/course_detail_page.dart';
+import 'package:natham_college/screen/study/course_page.dart';
+import 'package:natham_college/screen/study/study_page.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -15,7 +25,25 @@ class Homepage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.grey.shade100,
         surfaceTintColor: Colors.grey.shade100,
-        title: Image.asset('assets/images/logonm.png', height: 40),
+        title: Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Image.asset('assets/images/ngvlogo.png', height: 40),
+            ),
+            SizedBox(width: 5),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Image.asset('assets/images/logonm.png', height: 40),
+            ),
+          ],
+        ),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.notifications_none)),
         ],
@@ -67,25 +95,57 @@ class Homepage extends StatelessWidget {
                       _QuickActionItem(
                         icon: Icons.edit_note,
                         label: 'Apply Now',
-                        onTapFuncation: () {},
+                        onTapFunction: () {
+                          Get.to(() => ApplyToNathmPage());
+                        },
                       ),
                       _QuickActionItem(
                         icon: Icons.school_outlined,
                         label: 'Programs',
-                        onTapFuncation: () {},
+                        onTapFunction: () {},
                       ),
                       _QuickActionItem(
                         icon: Icons.download_outlined,
                         label: 'Downloads',
-                        onTapFuncation: () {},
+                        onTapFunction: () {
+                          Get.to(() => DownloadPage());
+                        },
                       ),
                       _QuickActionItem(
                         icon: Icons.headset_mic_outlined,
                         label: 'Contact',
-                        onTapFuncation: () {},
+                        onTapFunction: () {},
                       ),
                     ],
                   ),
+                ),
+
+                SizedBox(height: 20),
+                NoticePreviewSection(
+                  notices: allNotices,
+                  onViewAll: () {
+                    Get.to(() => NoticesPage());
+                  },
+                ),
+
+                SizedBox(height: 20),
+                FeaturedCoursesSection(
+                  courses: dummyCourses,
+                  onViewAll: () {
+                    Get.to(() => CoursePage());
+                  },
+                  onCourseTap: (course) {
+                    Get.to(
+                      () => CourseDetailPage(
+                        imagePath: course.imagePath,
+                        courseLevel: course.level,
+                        courseTitle: course.title,
+                        courseDiscipline: course.discipline,
+                        courseSeat: course.seats,
+                        campus: course.institution,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -259,34 +319,35 @@ class StatCard extends StatelessWidget {
   }
 }
 
-///QUICK ACTIONS////
-
 class _QuickActionItem extends StatelessWidget {
   final IconData icon;
   final String label;
-  final VoidCallback onTapFuncation;
+  final VoidCallback onTapFunction;
 
   const _QuickActionItem({
     required this.icon,
     required this.label,
-    required this.onTapFuncation,
+    required this.onTapFunction,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 255, 235, 204),
-            borderRadius: BorderRadius.circular(16),
+        GestureDetector(
+          onTap: onTapFunction,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 255, 235, 204),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(
+              icon,
+              color: const Color(0xFFC9A227),
+              size: 24,
+            ), // golden icon
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFFC9A227),
-            size: 24,
-          ), // golden icon
         ),
         const SizedBox(height: 8),
         Text(
@@ -298,6 +359,234 @@ class _QuickActionItem extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class NoticePreviewSection extends StatelessWidget {
+  final List<Notice> notices;
+  final VoidCallback onViewAll;
+  final int maxItemsToShow;
+
+  const NoticePreviewSection({
+    super.key,
+    required this.notices,
+    required this.onViewAll,
+    this.maxItemsToShow = 3,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final previewList = notices.take(maxItemsToShow).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Latest Notices",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: onViewAll,
+                child: const Text("View All", style: TextStyle(fontSize: 14)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        if (previewList.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: Text(
+                "No notices yet",
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+        else
+          Column(
+            children: previewList
+                .map((notice) => _HomeNoticeCard(notice: notice))
+                .toList(),
+          ),
+      ],
+    );
+  }
+}
+
+class _HomeNoticeCard extends StatelessWidget {
+  final Notice notice;
+  const _HomeNoticeCard({required this.notice});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          if (notice.isLatest)
+            Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notice.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  notice.category,
+                  style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            "${notice.date.day}/${notice.date.month}",
+            style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FeaturedCoursesSection extends StatelessWidget {
+  final List<Course> courses;
+  final VoidCallback onViewAll;
+  final void Function(Course course) onCourseTap;
+  final int maxItemsToShow;
+
+  const FeaturedCoursesSection({
+    super.key,
+    required this.courses,
+    required this.onViewAll,
+    required this.onCourseTap,
+    this.maxItemsToShow = 4,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final previewList = courses.take(maxItemsToShow).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Popular Courses",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              ),
+              TextButton(onPressed: onViewAll, child: const Text("View All")),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 190,
+          child: previewList.isEmpty
+              ? const Center(
+                  child: Text(
+                    "No courses available",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: previewList.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (context, index) {
+                    final course = previewList[index];
+                    return GestureDetector(
+                      onTap: () => onCourseTap(course),
+                      child: _CourseCard(course: course),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CourseCard extends StatelessWidget {
+  final Course course;
+  const _CourseCard({required this.course});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 160,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 90,
+            width: double.infinity,
+            child: Image.asset(course.imagePath, fit: BoxFit.cover),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  course.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  "${course.level} • ${course.duration}",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10.5, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
