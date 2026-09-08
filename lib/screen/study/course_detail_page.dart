@@ -1,6 +1,7 @@
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:natham_college/screen/study/apply/screen/apply_now_page.dart';
 import 'package:natham_college/screen/study/quick_fact_card.dart';
 import 'package:natham_college/screen/study/tabbar_pages/apply_page.dart';
 import 'package:natham_college/screen/study/tabbar_pages/entry_page.dart';
@@ -82,15 +83,15 @@ class _CourseDetailPageState extends State<CourseDetailPage>
           icon: Icon(Icons.arrow_back_ios),
         ),
 
-        title: Text('Course Details', style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 15
-        ),),
+        title: Text(
+          'Course Details',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
         centerTitle: true,
-        bottom: PreferredSize(preferredSize: Size.fromHeight(1), child: Container(
-          height: 1,
-          color: Colors.grey.shade400,
-        )),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Container(height: 1, color: Colors.grey.shade400),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -98,7 +99,6 @@ class _CourseDetailPageState extends State<CourseDetailPage>
             padding: const EdgeInsets.only(left: 10.0, right: 10),
             child: Column(
               children: [
-
                 SizedBox(height: height * 0.02),
 
                 BannerCard(
@@ -147,34 +147,43 @@ class _CourseDetailPageState extends State<CourseDetailPage>
                     if (_isTabChanging) return;
                     _tabController.animateTo(index);
                   },
-                  children:  [
-                    OverviewPage(courseLevel: widget.courseLevel,
-                    courseSeat: widget.courseSeat,
+                  children: [
+                    OverviewPage(
+                      courseLevel: widget.courseLevel,
+                      courseSeat: widget.courseSeat,
                     ),
-                    StructurePage(onGoToDownloads: () {
-                      
-                    }),
+                    StructurePage(onGoToDownloads: () {}),
                     EntryPage(courseLevel: widget.courseLevel),
                     FeePage(),
-                    ApplyPage(onStartApplication: () {
-                      
-                    }),
+                    ApplyPage(onStartApplication: () {}),
                   ],
                 ),
 
+                SizedBox(height: height * 0.02),
+
+                QuickFactsCard(
+                  duration: '4 Years',
+                  seats: widget.courseSeat,
+                  category: widget.courseDiscipline,
+                  level: widget.courseLevel,
+                  campus: widget.campus,
+                  onApply: () {
+                    Get.to(
+                      ApplyNowPage(
+                        imagePath: widget.imagePath,
+                        courseLevel: widget.courseLevel,
+                        courseTitle: widget.courseTitle,
+                        courseDiscipline: widget.courseDiscipline,
+                        courseSeat: widget.courseSeat,
+                        campus: widget.campus,
+                      ),
+                    );
+                  },
+                ),
 
                 SizedBox(height: height * 0.02),
 
-                QuickFactsCard(duration: '4 Years', seats: widget.courseSeat, category: widget.courseDiscipline, level: widget.courseLevel, campus: widget.campus,
-                onApply: () {
-                  
-                },
-                ), 
-
-                SizedBox(height: height * 0.02),
-
-                HaveAQuestionCard()
-
+                HaveAQuestionCard(),
               ],
             ),
           ),
@@ -300,7 +309,7 @@ class BannerCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'A bachelor program in $courseDiscipline at $campus.',
+                        'A $courseLevel program in $courseDiscipline at $campus.',
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 11,
@@ -391,9 +400,6 @@ class BannerCard extends StatelessWidget {
   }
 }
 
-
-
-
 class HaveAQuestionCard extends StatelessWidget {
   final VoidCallback? onContactAdmissions;
   final VoidCallback? onAskQuestion;
@@ -407,8 +413,8 @@ class HaveAQuestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-    width: double.infinity,
-      padding:  EdgeInsets.all(16),
+      width: double.infinity,
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -447,13 +453,11 @@ class HaveAQuestionCard extends StatelessWidget {
           const SizedBox(height: 22),
 
           // Contact Admissions Button (filled)
-         SizedBox(
+          SizedBox(
             width: double.infinity,
             height: 40,
             child: ElevatedButton(
-              onPressed: (){
-
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFC62828),
                 foregroundColor: Colors.white,
@@ -465,20 +469,14 @@ class HaveAQuestionCard extends StatelessWidget {
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
                   Icon(Icons.phone_outlined, size: 15),
-                   
+
                   SizedBox(width: 6),
 
                   Text(
                     'Contact Admission',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
-                 
-                  
                 ],
               ),
             ),
@@ -491,13 +489,17 @@ class HaveAQuestionCard extends StatelessWidget {
             height: 40,
             child: OutlinedButton.icon(
               onPressed: onAskQuestion,
-              icon: const Icon(Icons.chat_bubble_outline, size: 15, color: Colors.black,),
+              icon: const Icon(
+                Icons.chat_bubble_outline,
+                size: 15,
+                color: Colors.black,
+              ),
               label: const Text(
                 'Ask a Question',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black
+                  color: Colors.black,
                 ),
               ),
               style: OutlinedButton.styleFrom(
