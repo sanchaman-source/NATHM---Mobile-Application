@@ -1,7 +1,8 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:natham_college/model/application_form_model.dart';
+import 'package:natham_college/screen/study/apply/widget/document_upload_box.dart';
+import 'package:natham_college/widgets/document_drop_box.dart';
 
 class PersonalInfoStep extends StatefulWidget {
   final GlobalKey<FormState> formKey;
@@ -24,6 +25,30 @@ class PersonalInfoStep extends StatefulWidget {
 }
 
 class PersonalInfoStepState extends State<PersonalInfoStep> {
+  late final List<CategoryDocConfig> _categoryDocs = [
+    CategoryDocConfig(
+      category: 'Aadibasi/Janajati',
+      title: 'Tap to Upload Aadibasi/Janajati document',
+      hint: 'PDF, JPG, JPEG, and PNG · upto 10 MB',
+      getFile: () => widget.data.aadibasiJanajatiDoc,
+      setFile: (f) => setState(() => widget.data.aadibasiJanajatiDoc = f),
+    ),
+    CategoryDocConfig(
+      category: 'Madhesi',
+      title: 'Tap to Upload Madhesi Document',
+      hint: 'PDF, JPG, JPEG, and PNG · upto 10 MB',
+      getFile: () => widget.data.madhesiDoc,
+      setFile: (f) => setState(() => widget.data.madhesiDoc = f),
+    ),
+    CategoryDocConfig(
+      category: 'Dalit',
+      title: 'Tap to Upload Dalit Document',
+      hint: 'PDF, JPG, JPEG, and PNG · upto 10 MB',
+      getFile: () => widget.data.dalitDoc,
+      setFile: (f) => setState(() => widget.data.dalitDoc = f),
+    ),
+  ];
+
   final _formKey = GlobalKey<FormState>();
 
   bool validateForm() {
@@ -79,7 +104,13 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
   late String? _selectedCourse =
       widget.data.course ?? widget.preSelectedCourse ?? _courses.first;
 
-  final List<String> _courses = ['Bachelor of Mountaineering Studies'];
+  final List<String> _courses = [
+    'Bachelor of Mountaineering Studies',
+    'Bachelor of Travel and Tourism Management',
+    'Bachelor of Hotel Management',
+    'Master of Hospitality Management',
+    'Master of Adventure Tourism Studies',
+  ];
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
 
@@ -188,7 +219,7 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
                       ),
                     )
                   : DropdownButtonFormField<String>(
-                      initialValue: selectedCourse,
+                      initialValue: _selectedCourse,
                       decoration: _inputDecoration(),
                       items: courseOptions
                           .map(
@@ -203,6 +234,7 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
                           .toList(),
                       onChanged: (value) {
                         setState(() => _selectedCourse = value);
+                        widget.data.course = value;
                         _notifyFormChanged();
                       },
                       validator: (value) =>
@@ -223,7 +255,6 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
               ),
               const SizedBox(height: 16),
 
-              // MIDDLE NAME
               _buildLabel('MIDDLE NAME (EN)'),
               const SizedBox(height: 6),
               TextFormField(
@@ -234,7 +265,6 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
               ),
               const SizedBox(height: 16),
 
-              // LAST NAME
               _buildLabel('LAST NAME (EN)', isRequired: true),
               const SizedBox(height: 6),
               TextFormField(
@@ -294,7 +324,7 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
                 controller: _dobController,
                 readOnly: true,
                 decoration: _inputDecoration(
-                  hint: 'नेपाली जन्म मिति छान्नुहोस्',
+                  hint: 'Select your birth date.',
                   suffixIcon: const Icon(Icons.calendar_today, size: 20),
                 ),
                 onTap: () async {
@@ -305,16 +335,18 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
                     lastDate: DateTime.now(),
                   );
                   if (picked != null) {
-                    _dobController.text =
+                    final formatted =
                         '${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+                    setState(() {
+                      _dobController.text = formatted;
+                    });
+                    widget.data.dateOfBirth = formatted;
 
                     _notifyFormChanged();
                   }
                 },
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Please select DOB' : null,
-
-                onChanged: (v) => widget.data.dateOfBirth = v,
               ),
               const SizedBox(height: 16),
 
@@ -375,7 +407,6 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
               ),
               const SizedBox(height: 16),
 
-              // NATIONALITY
               _buildLabel('NATIONALITY (EN)', isRequired: true),
               const SizedBox(height: 6),
               TextFormField(
@@ -389,17 +420,17 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
               ),
               const SizedBox(height: 16),
 
-              // CITIZENSHIP NO.
               _buildLabel('CITIZENSHIP NO. (OR PASSPORT NO. — ONE REQUIRED)'),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _citizenshipController,
                 decoration: _inputDecoration(),
                 onChanged: (v) => widget.data.citizenShip = v,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
 
-              // PASSPORT NO.
               _buildLabel('PASSPORT NO.'),
               const SizedBox(height: 6),
               TextFormField(
@@ -424,37 +455,77 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
               ),
               const SizedBox(height: 16),
 
-              _buildUploadBox(
-                title: 'Drop passport-size photo here * (JPG or PNG, max 1)',
-                subtitle: 'JPG or PNG • maximum 3 MB each • 0/1 uploaded',
+              DocumentUploadBox(
+                title: 'Tap to add passport-size photo',
+                subtitle: 'JPG or PNG • upto 3 MB each',
                 icon: Icons.cloud_upload_outlined,
-                onTap: () {},
+                maxSizeMB: 3,
+                initialFile: widget.data.passportPhoto,
+                onChanged: (file) => widget.data.passportPhoto = file,
+                validator: (file) =>
+                    file == null ? 'Passport photo is required' : null,
               ),
               const SizedBox(height: 12),
 
               Row(
                 children: [
                   Expanded(
-                    child: _buildUploadBox(
-                      title: 'Drop citizenship front side here * (max 1)',
-                      subtitle: 'PDF, JPG, JPEG, PNG • max 10 MB',
+                    child: DocumentUploadBox(
+                      title: 'Tap to upload citizenship (front) *',
+                      subtitle: 'JPG, PNG · up to 10 MB',
                       icon: Icons.cloud_upload_outlined,
-                      onTap: () {},
                       isSmall: true,
+                      allowPdf: true,
+                      initialFile: widget.data.citizenshipFront,
+                      onChanged: (file) => widget.data.citizenshipFront = file,
+                      validator: (file) => file == null ? 'Required' : null,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildUploadBox(
-                      title: 'Drop citizenship back side here * (max 1)',
-                      subtitle: 'PDF, JPG, JPEG, PNG • max 10 MB',
+                    child: DocumentUploadBox(
+                      title: 'Tap to upload citizenship (back) *',
+                      subtitle: 'JPG, PNG · up to 10 MB',
                       icon: Icons.cloud_upload_outlined,
-                      onTap: () {},
                       isSmall: true,
+                      allowPdf: true,
+                      initialFile: widget.data.citizenshipBack,
+                      onChanged: (file) => widget.data.citizenshipBack = file,
+                      validator: (file) => file == null ? 'Required' : null,
                     ),
                   ),
                 ],
               ),
+
+              SizedBox(height: 10),
+
+              Builder(
+                builder: (context) {
+                  final matched = _categoryDocs
+                      .where((c) => c.category == _selectedCategory)
+                      .toList();
+                  if (matched.isEmpty) return const SizedBox.shrink();
+
+                  return Column(
+                    children: matched
+                        .map(
+                          (config) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: DocumentDropBoxField(
+                              key: ValueKey(config.category),
+                              title: config.title,
+                              hint: config.hint,
+                              initialFile: config.getFile(),
+                              onFileSelected: config.setFile,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
+
+              SizedBox(height: 10),
             ],
           ),
         ),
@@ -466,7 +537,6 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
     return RichText(
       text: TextSpan(
         text: text,
-
         style: const TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w500,
@@ -489,7 +559,8 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
       hintStyle: TextStyle(color: Colors.grey[400], fontSize: 12),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Colors.grey[300]!),
@@ -507,69 +578,6 @@ class PersonalInfoStepState extends State<PersonalInfoStep> {
         borderSide: const BorderSide(color: Colors.red),
       ),
       suffixIcon: suffixIcon,
-    );
-  }
-
-  Widget _buildUploadBox({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-    bool isSmall = false,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DottedBorder(
-        options: RoundedRectDottedBorderOptions(
-          radius: const Radius.circular(10),
-          dashPattern: const [6, 4],
-          color: const Color(0xFFD1D5DB),
-          strokeWidth: 1.4,
-          padding: EdgeInsets.zero,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            vertical: isSmall ? 22 : 30,
-            horizontal: 12,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: isSmall ? 28 : 34,
-                color: const Color(0xFF9CA3AF),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: isSmall ? 12.5 : 13.5,
-                  fontWeight: FontWeight.w500,
-                  color: const Color(0xFF4B5563),
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: const Color(0xFF9CA3AF),
-                  height: 1.3,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
