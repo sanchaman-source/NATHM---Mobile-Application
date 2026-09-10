@@ -8,10 +8,10 @@ import 'package:natham_college/model/course_card_model.dart';
 import 'package:natham_college/model/notice_list_model.dart';
 import 'package:natham_college/screen/homepage/apply/apply_to_nathm_page.dart';
 import 'package:natham_college/screen/homepage/downloads/download_page.dart';
+import 'package:natham_college/screen/more/contact_us_page.dart';
 import 'package:natham_college/screen/notices/notice_page.dart';
 import 'package:natham_college/screen/study/course_detail_page.dart';
 import 'package:natham_college/screen/study/course_page.dart';
-import 'package:natham_college/screen/study/study_page.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
@@ -22,134 +22,148 @@ class Homepage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.grey.shade100,
-        surfaceTintColor: Colors.grey.shade100,
-        title: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Image.asset('assets/images/ngvlogo.png', height: 40),
-            ),
-            SizedBox(width: 5),
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Image.asset('assets/images/logonm.png', height: 40),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.notifications_none)),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Container(color: Colors.grey.shade300, height: 1),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: height * 0.02),
-
-                AutoBannerCarousel(),
-
-                SizedBox(height: height * 0.02),
-
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Row(
-                    children: stats
-                        .map((stat) => StatCard(stat: stat))
-                        .toList(),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.grey.shade100,
+              surfaceTintColor: Colors.grey.shade100,
+              floating: true,
+              snap: true,
+              title: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Image.asset('assets/images/ngvlogo.png', height: 40),
                   ),
-                ),
-
-                SizedBox(height: height * 0.02),
-
-                Text(
-                  'Quick Links',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A2B4C),
+                  SizedBox(width: 5),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Image.asset('assets/images/logonm.png', height: 40),
                   ),
-                ),
-
-                SizedBox(height: height * 0.02),
-
-                Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _QuickActionItem(
-                        icon: Icons.edit_note,
-                        label: 'Apply Now',
-                        onTapFunction: () {
-                          Get.to(() => ApplyToNathmPage());
-                        },
-                      ),
-                      _QuickActionItem(
-                        icon: Icons.school_outlined,
-                        label: 'Programs',
-                        onTapFunction: () {},
-                      ),
-                      _QuickActionItem(
-                        icon: Icons.download_outlined,
-                        label: 'Downloads',
-                        onTapFunction: () {
-                          Get.to(() => DownloadPage());
-                        },
-                      ),
-                      _QuickActionItem(
-                        icon: Icons.headset_mic_outlined,
-                        label: 'Contact',
-                        onTapFunction: () {},
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 20),
-                NoticePreviewSection(
-                  notices: allNotices,
-                  onViewAll: () {
-                    Get.to(() => NoticesPage());
-                  },
-                ),
-
-                SizedBox(height: 20),
-                FeaturedCoursesSection(
-                  courses: dummyCourses,
-                  onViewAll: () {
-                    Get.to(() => CoursePage());
-                  },
-                  onCourseTap: (course) {
-                    Get.to(
-                      () => CourseDetailPage(
-                        imagePath: course.imagePath,
-                        courseLevel: course.level,
-                        courseTitle: course.title,
-                        courseDiscipline: course.discipline,
-                        courseSeat: course.seats,
-                        campus: course.institution,
-                      ),
-                    );
-                  },
+                ],
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.notifications_none),
                 ),
               ],
+              bottom: PreferredSize(
+                preferredSize: Size.fromHeight(1),
+                child: Container(color: Colors.grey.shade300, height: 1),
+              ),
             ),
-          ),
+
+            SliverPadding(
+              padding: const EdgeInsets.only(left: 10.0),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: height * 0.02),
+
+                    AutoBannerCarousel(),
+
+                    SizedBox(height: height * 0.02),
+
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Row(
+                        children: stats
+                            .map((stat) => StatCard(stat: stat))
+                            .toList(),
+                      ),
+                    ),
+
+                    SizedBox(height: height * 0.02),
+
+                    Text(
+                      'Quick Links',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1A2B4C),
+                      ),
+                    ),
+
+                    SizedBox(height: height * 0.02),
+
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _QuickActionItem(
+                            icon: Icons.edit_note,
+                            label: 'Apply Now',
+                            onTapFunction: () {
+                              Get.to(() => ApplyToNathmPage());
+                            },
+                          ),
+                          _QuickActionItem(
+                            icon: Icons.school_outlined,
+                            label: 'Programs',
+                            onTapFunction: () {
+                              Get.to(() => CoursePage());
+                            },
+                          ),
+                          _QuickActionItem(
+                            icon: Icons.download_outlined,
+                            label: 'Downloads',
+                            onTapFunction: () {
+                              Get.to(() => DownloadPage());
+                            },
+                          ),
+                          _QuickActionItem(
+                            icon: Icons.headset_mic_outlined,
+                            label: 'Contact',
+                            onTapFunction: () {
+                              Get.to(() => ContactUsPage());
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+                    NoticePreviewSection(
+                      notices: allNotices,
+                      onViewAll: () {
+                        Get.to(() => NoticesPage());
+                      },
+                    ),
+
+                    SizedBox(height: 20),
+                    FeaturedCoursesSection(
+                      courses: dummyCourses,
+                      onViewAll: () {
+                        Get.to(() => CoursePage());
+                      },
+                      onCourseTap: (course) {
+                        Get.to(
+                          () => CourseDetailPage(
+                            imagePath: course.imagePath,
+                            courseLevel: course.level,
+                            courseTitle: course.title,
+                            courseDiscipline: course.discipline,
+                            courseSeat: course.seats,
+                            campus: course.institution,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
